@@ -1,0 +1,195 @@
+---
+collections:
+  - name: _user
+    predicates:
+      - name: email
+        type: string
+        unique: true
+
+      - name: type
+        type: string
+        doc: "This should resolve to Student, Admin, or Supplier" # change to tag?
+
+      - name: resetPasswordToken
+        type: string
+        index: true
+
+      - name: resetPasswordSentAt
+        type: instant
+
+      - name: studentCardNumber
+        type: string
+        unique: true
+
+      - name: firstName
+        type: string
+        index: true
+
+      - name: lastName
+        type: string
+        index: true
+
+      - name: phone
+        type: string
+
+      - name: agreedToTOC
+        type: boolean
+
+      - name: name # necessary? firstName / lastName already exist above
+        type: string # maybe a suffix predicate would be more suitable
+        index: true # I suppose this could be useful for simple display purposes
+
+      - name: contactFirstName # is this emergency contact?
+        type: string
+        index: true
+
+      - name: contactLastName
+        type: string
+        index: true
+
+      - name: address1
+        type: string
+
+      - name: address2
+        type: string
+
+      - name: city
+        type: string
+
+      - name: state
+        type: string
+
+      - name: postalCode
+        type: int
+
+      - name: contactTitle
+        type: string
+
+      - name: purchases
+        type: ref
+        multi: true
+        restrictCollection: order
+
+      - name: sales # I'm guessing this is intended for Suppliers
+        type: ref
+        multi: true
+        restrictCollection: order
+
+      - name: cart
+        type: ref
+        multi: true
+        restrictCollection: cartItem
+
+      - name: products # is this the selection that a Supplier has?
+        type: ref
+        multi: true
+        restrictCollection: product
+
+      - name: wallet
+        type: ref
+        restrictCollection: wallet
+
+  - name: order
+    predicates:
+      - name: orderNumber # how is this generated?
+        type: string
+        unique: true
+
+      - name: paid
+        type: boolean
+
+      - name: fulfilled
+        type: boolean
+
+      - name: cancelled
+        type: boolean
+
+      - name: transactionStatus # is this redundant re: three bools above? Are there any other
+        type: tag # possible states for an order to be in?
+
+      - name: contactEmail
+        type: string
+        indexed: true
+
+      - name: contactPhone
+        type: string
+
+      - name: pickupPersonFirstName
+        type: string
+
+      - name: pickupPersonLastName
+        type: string
+
+      - name: orderStatus
+        type: tag
+
+      - name: note
+        type: string
+
+      - name: orderItems
+        type: ref
+        multi: true
+        restrictCollection: orderItem
+
+  - name: orderItem
+    predicates:
+      - name: productRef
+        type: ref
+        restrictCollection: product
+
+      - name: quantity
+        type: int
+
+      - name: fulfilled
+        type: boolean
+
+  - name: cartItem
+    predicates:
+      - name: productRef
+        type: ref
+        restrictCollection: product
+
+      - name: quantity
+        type: int
+
+  - name: product
+    predicates:
+      - name: name
+        type: string
+        index: true
+
+      - name: UUID
+        type: string
+        unique: true
+
+      - name: category
+        type: tag
+        doc: "Should resolve to..."
+
+      - name: description
+        type: string
+
+      - name: price
+        type: int
+
+      - name: stock
+        type: int
+
+      - name: imageSource
+        type: string
+
+  - name: wallet
+    predicates:
+      - name: balance
+        type: int
+
+      - name: name
+        type: string
+        unique: true
+
+roles:
+  - id: student
+    doc: "This role should be able to Query: [available products, any non-private supplier data associated with supplier products, all their own orders, all their own cart items, all their own order items] and Transact: [against some of their own data, new shopping cart items under certain conditions, new orders and order items under certain conditions]"
+
+  - id: supplier
+    doc: "This role should be able to Query: [their own products, their own orders, their own orders, their own order items, students associated with their orders], Transact: [against some of their own data, their own products, ]"
