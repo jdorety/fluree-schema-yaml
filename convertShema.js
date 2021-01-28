@@ -4,8 +4,6 @@ const fs = require("fs");
 const sourcePath = process.argv[2];
 const targetPath = process.argv[3];
 
-console.log(sourcePath);
-
 const sourceFile = fs.readFileSync(sourcePath, "utf8");
 const yamlDoc = yaml.parseDocument(sourceFile);
 // const yamlDoc = new yaml.Document(sourceFile)
@@ -37,5 +35,15 @@ for (let collection of JSONdoc.collections) {
   }
 }
 
-const transactions = [...collections, ...predicates];
-console.log(JSON.stringify(transactions, null, 2));
+const schemaTransactions = [...collections, ...predicates];
+
+const targetFolder = targetPath;
+try {
+  fs.writeFileSync(
+    (targetFolder ? targetFolder + "/" : "") + "01_schema.json",
+    JSON.stringify(schemaTransactions, null, 2)
+  );
+} catch (err) {
+  console.log("Make sure the directory you're writing to exists");
+  console.log(err);
+}
