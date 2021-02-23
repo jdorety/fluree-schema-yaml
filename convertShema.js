@@ -27,6 +27,11 @@ function createPredicate(collection, predicate) {
     name: `${collection}/${predicate.name}`,
   };
 }
+if (JSONdoc._predicateExtend) {
+  for (let pred of JSONdoc._predicateExtend) {
+    predicates.push(createPredicate("_predicate", pred));
+  }
+}
 
 for (let collection of JSONdoc.collections) {
   collections.push(createCollection(collection.name));
