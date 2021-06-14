@@ -9,6 +9,7 @@ const yamlDoc = yaml.parseDocument(sourceFile);
 // const yamlDoc = new yaml.Document(sourceFile)
 
 const JSONdoc = yamlDoc.toJSON();
+console.log(JSON.stringify(JSONdoc, null, 2))
 
 const collections = [];
 const predicates = [];
@@ -30,6 +31,14 @@ function createPredicate(collection, predicate) {
 if (JSONdoc._predicateExtend) {
   for (let pred of JSONdoc._predicateExtend) {
     predicates.push(createPredicate("_predicate", pred));
+  }
+}
+
+if (JSONdoc._collectionExtend) {
+  for (let collection of JSONdoc._collectionExtend) {
+    for (let pred of collection.predicates) {
+      predicates.push(createPredicate(collection.name, pred));
+    }
   }
 }
 
